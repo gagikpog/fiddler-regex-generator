@@ -2,43 +2,7 @@
 import { useState } from 'react';
 import './App.css';
 import List from './components/List';
-
-const defaultData = {
-  modules: {
-    title: 'Modules',
-    items: []
-  },
-  fileTypes: {
-    title: 'File Types',
-    items: []
-  },
-  domains: {
-    title: 'Domains',
-    items: []
-  },
-  subdomains: {
-    title: 'Subdomains',
-    items: []
-  },
-  modulesPath: '',
-  rootDomain: '',
-  systemModulesPath: '',
-  https: true
-}
-
-function getData(key) {
-  const dataStr = window.localStorage.getItem(key);
-  let res = null;
-  try {
-    if (dataStr) {
-      res = JSON.parse(dataStr);
-    }
-  } catch (error) {
-    res = null;
-  }
-
-  return res || defaultData[key];
-}
+import { getData, generateRequestPattern } from './helpers/utils';
 
 export default function App(props) {
 
@@ -58,6 +22,8 @@ export default function App(props) {
     setter(data);
     window.localStorage.setItem(source, JSON.stringify(data));
   }
+
+  const pattern = generateRequestPattern(modules, fileTypes, domains, subdomains, 'resources', 'ru', true);
 
   return (
     <div className="app">
@@ -99,7 +65,7 @@ export default function App(props) {
         </div>
 
         <div className='result'>
-
+          {pattern}
         </div>
       </main>
       <footer>
