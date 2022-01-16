@@ -47,6 +47,18 @@ export default function App(props) {
   const [domains, setDomains] = useState(() => getData('domains'));
   const [subdomains, setSubdomains] = useState(() => getData('subdomains'));
 
+  const setData = (source, data) => {
+    const setter = {
+      modules: setModules,
+      fileTypes: setFileTypes,
+      domains: setDomains,
+      subdomains: setSubdomains
+    }[source];
+
+    setter(data);
+    window.localStorage.setItem(source, JSON.stringify(data));
+  }
+
   return (
     <div className="app">
       <header>header</header>
@@ -55,11 +67,11 @@ export default function App(props) {
           <div className='app-settings-left'>
             <label className='app-settings-label'>Modules root path</label>
             <input></input>
-            <label className='app-settings-label'>Root Domain</label>
+            <label className='app-settings-label'>File system modules root</label>
             <input></input>
           </div>
           <div className='app-settings-right'>
-            <label className='app-settings-label'>File system modules root</label>
+            <label className='app-settings-label'>Root Domain</label>
             <input></input>
             <div>
               <label>HTTPS</label>
@@ -70,16 +82,16 @@ export default function App(props) {
 
         <div className='app-settings-lists'>
           <div className='app-settings-list-item'>
-            <List items={modules.items} title={modules.title} setData={setModules}/>
+            <List items={modules.items} title={modules.title} setData={(data) => setData('modules', data)}/>
           </div>
           <div className='app-settings-list-item'>
-            <List items={fileTypes.items} title={fileTypes.title} setData={setFileTypes}/>
+            <List items={fileTypes.items} title={fileTypes.title} setData={(data) => setData('fileTypes', data)}/>
           </div>
           <div className='app-settings-list-item'>
-            <List items={domains.items} title={domains.title} setData={setDomains}/>
+            <List items={domains.items} title={domains.title} setData={(data) => setData('domains', data)}/>
           </div>
           <div className='app-settings-list-item'>
-            <List items={subdomains.items} title={subdomains.title} setData={setSubdomains}/>
+            <List items={subdomains.items} title={subdomains.title} setData={(data) => setData('subdomains', data)}/>
           </div>
           {/* fake elements */}
           <div className='app-settings-list-item'></div>
