@@ -1,5 +1,10 @@
 
 import { useState } from 'react';
+import Switch from '@mui/material/Switch';
+
+import { Button, Input, Box, IconButton }from '@mui/material';
+import DeleteForever from '@mui/icons-material/DeleteForever';
+
 import './List.css';
 
 export default function List(props) {
@@ -28,13 +33,13 @@ export default function List(props) {
 
     const addButton = editing ?
         <div>
-            <input value={value} onInput={(event) => setValue(event.target.value)}></input>
+            <Input margin="none" value={value} onInput={(event) => setValue(event.target.value)}></Input>
             <div onClick={saveEditing}>save</div>
             <div onClick={closeEditing}>close</div>
         </div>
     :
         <div onClick={addHandler} className='list-add'>
-            add
+            <Button>add</Button>
         </div>;
 
     return (
@@ -43,9 +48,15 @@ export default function List(props) {
         <div className='list-items'>
             {props.items.map((item) => {
                 return (<div className='list-item' key={item}>
-                    <div><input type="checkbox"></input></div>
-                    <div>{item}</div>
-                    <div>x</div>
+
+                    <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                        <Switch></Switch>
+                        <div className='list-item-text'>{item}</div>
+                        
+                        <IconButton aria-label="delete">
+                            <DeleteForever color="action"/>
+                        </IconButton>
+                    </Box>
                 </div>)
             })}
         </div>
