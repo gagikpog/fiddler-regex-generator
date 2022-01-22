@@ -1,8 +1,6 @@
 
 import { useState } from 'react';
-import Switch from '@mui/material/Switch';
-
-import { Button, Input , Box, IconButton, Tooltip }from '@mui/material';
+import { Button, Input , Box, IconButton, Tooltip, Switch, FormControlLabel }from '@mui/material';
 import { DeleteForever, Close, AddTask } from '@mui/icons-material';
 
 import './List.css';
@@ -99,12 +97,11 @@ export default function List(props) {
                     return (<div className='list-item' key={item.value}>
 
                         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                            <Switch
+                            <FormControlLabel control={<Switch
                                 checked={item.enabled}
                                 onChange={(event) => enabledChanged(event.target.checked, item.value)}
-                            />
-                            <div className='list-item-text'>{item.value}</div>
-
+                            />} label={item.value} />
+                            <div className='list-item-text'></div>
                             <IconButton onClick={() => removeItem(item.value)}>
                                 <DeleteForever color="action"/>
                             </IconButton>
