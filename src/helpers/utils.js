@@ -1,25 +1,53 @@
-const defaultData = {
+export const defaultData = {
     modules: {
         title: 'Modules',
-        items: []
+        items: [{
+            value: 'myModule',
+            enabled: true
+        }]
     },
     fileTypes: {
         title: 'File Types',
-        items: []
+        items: [{
+            value: 'js',
+            enabled: true
+        }, {
+            value: 'css',
+            enabled: false
+        }]
     },
     domains: {
         title: 'Domains',
-        items: []
+        items: [{
+            value: 'mySite',
+            enabled: true
+        }]
     },
     subdomains: {
         title: 'Subdomains',
-        items: []
+        items: [{
+            value: 'mySubDomain',
+            enabled: false
+        }]
     },
-    modulesPath: '',
-    systemModulesPath: '',
+    modulesPath: 'src',
+    systemModulesPath: 'C:/Users/user/Documents/myProject/src',
     rootDomain: 'ru',
     https: true
 }
+
+export const listFields = [
+    'modules',
+    'fileTypes',
+    'domains',
+    'subdomains'
+];
+export const simpleFields = [
+    'modules',
+    'fileTypes',
+    'domains',
+    'subdomains'
+];
 
 export function getData(key) {
     const dataStr = window.localStorage.getItem(key);
@@ -46,7 +74,19 @@ export function generateRequestPattern(modules, fileTypes, domains, subdomains, 
         return `(.*\\.${getValues(item)})?`;
     }).join('');
 
-    return `regex:^http${https ? 's' : ''}://(${subdomainsStr})?.*(${domainsStr})\\.${rootDomain}/${modulesPath}/(${modulesStr})/(${fileTypesStr})(\\?.+)?$`;
+    const subdomainsRegex = subdomainsStr ? `(${subdomainsStr})?.*` : '';
+    const domainsRegex = domainsStr ? `(${domainsStr})` : '.*';
+    const rootDomainRegex = rootDomain ? `\\.${rootDomain}` : '';
+
+    const pattern = `regex:^http${https ? 's' : ''}://${subdomainsRegex}${domainsRegex}${rootDomainRegex}/${modulesPath}/(${modulesStr})/(${fileTypesStr})(\\?.+)?$`;
+
+    const getParams = (start) => [0, 1].map((i) => `\\$${start + i}`).join('');
+
+    let start = 1;
+    start += subdomainsRegex ? 1 : 0;
+    start += domainsStr ? 1 : 0;
+    const filesPath = `${systemModulesPath || 'C:/'}${getParams(start)}`;
+    return {pattern, filesPath};
 }
 
 /**
@@ -61,12 +101,7 @@ function validateItem(item) {
 export function getValidatedData(data) {
     const res = {};
     let done = true;
-    [
-        'modules',
-        'fileTypes',
-        'domains',
-        'subdomains'
-    ].forEach((key) => {
+    listFields.forEach((key) => {
         const items = data?.[key]?.items || [];
         let newItem = [];
 
@@ -90,12 +125,7 @@ export function getValidatedData(data) {
         };
     });
 
-    [
-        'modulesPath',
-        'systemModulesPath',
-        'rootDomain',
-        'https',
-    ].forEach((key) => {
+    simpleFields.forEach((key) => {
         const type =  typeof defaultData[key];
         const inputData = data?.[key];
         if (typeof inputData === type) {

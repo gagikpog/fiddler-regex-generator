@@ -1,10 +1,17 @@
 
 import { useState } from 'react';
-import { TextField, FormControlLabel, Switch, IconButton, Tooltip, Alert }from '@mui/material';
+import { TextField, FormControlLabel, Switch, IconButton, Tooltip, Alert, Link }from '@mui/material';
 import './App.css';
 import List from './components/List';
-import { getData, generateRequestPattern, getValidatedData } from './helpers/utils';
-import { ContentCopy, ContentPaste } from '@mui/icons-material';
+import {
+  getData,
+  generateRequestPattern,
+  getValidatedData,
+  defaultData,
+  listFields,
+  simpleFields
+} from './helpers/utils';
+import { ContentCopy, ContentPaste, RestartAlt } from '@mui/icons-material';
 
 export default function App(props) {
 
@@ -35,7 +42,8 @@ export default function App(props) {
     window.localStorage.setItem(source, JSON.stringify(data));
   }
 
-  const pattern = generateRequestPattern(modules, fileTypes, domains, subdomains, modulesPath, rootDomain, https);
+  const { pattern, filesPath } =
+    generateRequestPattern(modules, fileTypes, domains, subdomains, modulesPath, rootDomain, https, systemModulesPath);
 
   const showAlert = (message, severity, delay = 4000) => {
     setAlert({ message, severity });
@@ -53,16 +61,7 @@ export default function App(props) {
   }
 
   const copyAll = () => {
-    const data = {
-      modules,
-      fileTypes,
-      domains,
-      subdomains,
-      modulesPath,
-      systemModulesPath,
-      rootDomain,
-      https
-    };
+    const data = { modules, fileTypes, domains, subdomains, modulesPath, systemModulesPath, rootDomain, https };
     copy(JSON.stringify(data, null, 2));
   }
 
@@ -75,16 +74,7 @@ export default function App(props) {
       return JSON.parse(text || '');
     }).then((data) => {
       const {res, done} = getValidatedData(data);
-      [
-        'modules',
-        'fileTypes',
-        'domains',
-        'subdomains',
-        'modulesPath',
-        'systemModulesPath',
-        'rootDomain',
-        'https',
-      ].forEach((key) => setData(key, res[key]));
+      [...listFields, ...simpleFields].forEach((key) => setData(key, res[key]));
 
       const message = done ?
         'Paste from clipboard was successful!' :
@@ -94,6 +84,12 @@ export default function App(props) {
 
     }).catch(catchError);
   }
+
+  const resetAll = () =>{
+    [...listFields, ...simpleFields].forEach((key) => setData(key, defaultData[key]));
+    localStorage.clear();
+    showAlert('Reset success', 'success');
+  };
 
   const alertControl = alert.message ? <Alert variant="filled" severity={alert.severity}>
     {alert.message}
@@ -105,6 +101,9 @@ export default function App(props) {
         <div className='header-logo'>
           Fiddler regex generator
         </div>
+        <Tooltip title="Reset all">
+          <IconButton  onClick={() => resetAll()}><RestartAlt color="secondary"/></IconButton>
+        </Tooltip>
         <Tooltip title="Copy All">
           <IconButton  onClick={() => copyAll()}><ContentCopy color="secondary"/></IconButton>
         </Tooltip>
@@ -183,10 +182,10 @@ export default function App(props) {
           <div className='result-row'>
             <div className='result-title'>File path:</div>
             <div className='result-text'>
-              {systemModulesPath}\$3\$4
+              {filesPath}
             </div>
             <Tooltip title="Copy file path">
-              <IconButton onClick={() => copy(`${systemModulesPath}\\$3\\$4`)}><ContentCopy color="action"/></IconButton>
+              <IconButton onClick={() => copy(filesPath)}><ContentCopy color="action"/></IconButton>
             </Tooltip>
           </div>
         </div>
@@ -195,7 +194,9 @@ export default function App(props) {
         {alertControl}
       </div>
       <footer>
-        GitHub: gagikpog
+        <Link href="https://github.com/gagikpog/fiddler-regex-generator" color="inherit" target="_blank">
+          GitHub: gagikpog
+        </Link>
       </footer>
     </div>
   );
