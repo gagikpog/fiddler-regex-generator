@@ -49,18 +49,30 @@ export const simpleFields = [
     'subdomains'
 ];
 
+function getDataServer(key) {
+    const res = defaultData[key];
+    if (typeof res === 'object') {
+        return {
+            title: res.title,
+            items: []
+        };
+    }
+    return res;
+}
+
 export function getData(key) {
-    const dataStr = window.localStorage.getItem(key);
+    const dataStr = isClient() ? window?.localStorage?.getItem(key) : null;
+
     let res = null;
     try {
-    if (dataStr) {
-        res = JSON.parse(dataStr);
-    }
+        if (dataStr) {
+            res = JSON.parse(dataStr);
+        }
     } catch (error) {
         res = null;
     }
 
-    return res ?? defaultData[key];
+    return res ?? (isClient() ? defaultData[key] : getDataServer(key));
 }
 
 export function generateRequestPattern(modules, fileTypes, domains, subdomains, modulesPath, rootDomain, https, systemModulesPath) {
@@ -136,4 +148,8 @@ export function getValidatedData(data) {
     });
 
     return {res, done};
+}
+
+export function isClient() {
+    return typeof window !== 'undefined';
 }

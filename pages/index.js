@@ -1,16 +1,18 @@
 
+import Head from 'next/head'
 import { useState } from 'react';
 import { TextField, FormControlLabel, Switch, IconButton, Tooltip, Alert, Link }from '@mui/material';
-import './App.css';
-import List from './components/List';
+import styles from '../styles/App.module.css';
+import List from '../src/components/List';
 import {
   getData,
   generateRequestPattern,
   getValidatedData,
   defaultData,
   listFields,
-  simpleFields
-} from './helpers/utils';
+  simpleFields,
+  isClient
+} from '../src/helpers/utils';
 import { ContentCopy, ContentPaste, RestartAlt } from '@mui/icons-material';
 
 export default function App(props) {
@@ -26,6 +28,8 @@ export default function App(props) {
 
   const [alert, setAlert] = useState(() => ({message: '', severity: 'success'}));
 
+  const appSettingsListItemClasses = `${styles['app-settings-list-item']} ${styles['app-settings-list-item-base']}`;
+
   const setData = (source, data) => {
     const setter = {
       modules: setModules,
@@ -39,7 +43,9 @@ export default function App(props) {
     }[source];
 
     setter(data);
-    window.localStorage.setItem(source, JSON.stringify(data));
+    if (isClient()) {
+      window.localStorage.setItem(source, JSON.stringify(data));
+    }
   }
 
   const { pattern, filesPath } =
@@ -96,9 +102,24 @@ export default function App(props) {
   </Alert> : '';
 
   return (
-    <div className="app">
-      <header>
-        <div className='header-logo'>
+    <div className={styles.app}>
+      <Head>
+        <link rel="icon" href="/f-favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="google-site-verification" content="-FBEZCX9HvkJukBI3Zg3qUiql7Z85yLF7WQvrWY2WFc" />
+        <meta name="yandex-verification" content="dcdcd457fb53fada" />
+        <meta name="theme-color" content="#000000" />
+        <meta name="description" content="Fiddler regex generator" />
+        <link rel="apple-touch-icon" href="/logo192.png" />
+        {/*
+          manifest.json provides metadata used when your web app is installed on a
+          user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+        */}
+        <link rel="manifest" href="/manifest.json" />
+        <title>Regex generator</title>
+      </Head>
+      <header className={styles.header}>
+        <div className={styles.logo}>
           Fiddler regex generator
         </div>
         <Tooltip title="Reset all">
@@ -111,9 +132,9 @@ export default function App(props) {
           <IconButton  onClick={() => paste()}><ContentPaste color="secondary"/></IconButton>
         </Tooltip>
       </header>
-      <main>
-        <div className='app-settings'>
-          <div className='app-settings-left'>
+      <main className={styles.main}>
+        <div className={styles['app-settings']}>
+          <div className={styles['app-settings-left']}>
             <TextField
               label="Modules root path"
               variant="outlined"
@@ -121,7 +142,7 @@ export default function App(props) {
               value={modulesPath}
               onChange={(event) => setData('modulesPath', event.target.value)}
             />
-            <div className='app-settings-input-separator'></div>
+            <div className={styles['app-settings-input-separator']}></div>
             <TextField
               label="File system modules root"
               variant="outlined"
@@ -130,7 +151,7 @@ export default function App(props) {
               onChange={(event) => setData('systemModulesPath', event.target.value)}
             />
           </div>
-          <div className='app-settings-right'>
+          <div className={styles['app-settings-right']}>
             <TextField
               label="Root Domain"
               variant="outlined"
@@ -138,7 +159,7 @@ export default function App(props) {
               value={rootDomain}
               onChange={(event) => setData('rootDomain', event.target.value)}
             />
-            <div className='app-settings-input-separator'></div>
+            <div className={styles['app-settings-input-separator']}></div>
             <FormControlLabel
               control={
                 <Switch
@@ -151,37 +172,37 @@ export default function App(props) {
           </div>
         </div>
 
-        <div className='app-settings-lists'>
-          <div className='app-settings-list-item app-settings-list-item-base'>
+        <div className={styles['app-settings-lists']}>
+          <div className={appSettingsListItemClasses}>
             <List items={modules.items} title={modules.title} setData={(data) => setData('modules', data)}/>
           </div>
-          <div className='app-settings-list-item app-settings-list-item-base'>
+          <div className={appSettingsListItemClasses}>
             <List items={fileTypes.items} title={fileTypes.title} setData={(data) => setData('fileTypes', data)}/>
           </div>
-          <div className='app-settings-list-item app-settings-list-item-base'>
+          <div className={appSettingsListItemClasses}>
             <List items={domains.items} title={domains.title} setData={(data) => setData('domains', data)}/>
           </div>
-          <div className='app-settings-list-item app-settings-list-item-base'>
+          <div className={appSettingsListItemClasses}>
             <List items={subdomains.items} title={subdomains.title} setData={(data) => setData('subdomains', data)}/>
           </div>
           {/* fake elements */}
-          <div className='app-settings-list-item-base'></div>
-          <div className='app-settings-list-item-base'></div>
+          <div className={styles['app-settings-list-item-base']}></div>
+          <div className={styles['app-settings-list-item-base']}></div>
         </div>
 
-        <div className='result'>
-          <div className='result-row'>
-            <div className='result-title'>Pattern:</div>
-            <div className='result-text'>
+        <div className={styles.result}>
+          <div className={styles['result-row']}>
+            <div className={styles['result-title']}>Pattern:</div>
+            <div className={styles['result-text']}>
               {pattern}
             </div>
             <Tooltip title="Copy Pattern">
               <IconButton  onClick={() => copy(pattern)}><ContentCopy color="action"/></IconButton>
             </Tooltip>
           </div>
-          <div className='result-row'>
-            <div className='result-title'>File path:</div>
-            <div className='result-text'>
+          <div className={styles['result-row']}>
+            <div className={styles['result-title']}>File path:</div>
+            <div className={styles['result-text']}>
               {filesPath}
             </div>
             <Tooltip title="Copy file path">
@@ -190,14 +211,21 @@ export default function App(props) {
           </div>
         </div>
       </main>
-      <div className='alert'>
+      <div className={styles.alert}>
         {alertControl}
       </div>
-      <footer>
+      <footer className={styles.footer}>
         <Link href="https://github.com/gagikpog/fiddler-regex-generator" color="inherit" target="_blank">
           GitHub: gagikpog
         </Link>
       </footer>
+
+      {/* Yandex.Metrika counter */}
+      <noscript>
+        <div>
+          <img src="https://mc.yandex.ru/watch/87380093" alt="" className={styles.ym} />
+        </div>
+        </noscript>
     </div>
   );
 }

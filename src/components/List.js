@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button, Input , Box, IconButton, Tooltip, Switch, FormControlLabel }from '@mui/material';
 import { DeleteForever, Close, AddTask } from '@mui/icons-material';
 
-import './List.css';
+import styles from '../../styles/List.module.css';
 
 export default function List(props) {
 
@@ -85,12 +85,12 @@ export default function List(props) {
             <IconButton onClick={closeEditing} ><Close color="primary" /></IconButton>
         </Box>
     :
-        <div onClick={addHandler} className='list-add'>
+        <div onClick={addHandler} className={styles.add}>
             <Button>add</Button>
         </div>;
 
     return (
-        <div className='list'>
+        <div className={styles.list}>
             <div className='list-header'>{props.title}</div>
             <div className='list-items'>
                 {props.items.map((item) => {
@@ -101,7 +101,7 @@ export default function List(props) {
                                 checked={item.enabled}
                                 onChange={(event) => enabledChanged(event.target.checked, item.value)}
                             />} label={item.value} />
-                            <div className='list-item-text'></div>
+                            <div className={styles.text}></div>
                             <IconButton onClick={() => removeItem(item.value)}>
                                 <DeleteForever color="action"/>
                             </IconButton>
